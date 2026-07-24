@@ -1,0 +1,96 @@
+# AI System Card — OpenAI API / ChatGPT business plans
+#
+# Starting point, not a finished card. Replace the REPLACE ME fields and re-verify the data
+# flows against current OpenAI documentation before relying on them.
+
+card_version: "0.1"
+system_name: "OpenAI API"
+
+provider:
+  name: "OpenAI Ireland Ltd (EEA/Swiss/UK users) / OpenAI OpCo LLC"
+  legal_entity_location: "Ireland (EEA contracting entity); United States (parent)"
+  contact: "https://help.openai.com"
+
+model:
+  name: "REPLACE ME — the specific model you call, e.g. gpt-5.2"
+  type: "General-purpose language model"
+  access_method: "OpenAI API. Note that ChatGPT consumer plans run on different terms — do not use a consumer account for business data."
+
+purpose: "REPLACE ME — what your organisation uses it for."
+
+role: "deployer"
+
+risk_classification:
+  class: "not_assessed"
+  rationale: "General-purpose model. Classify per use case, not per vendor."
+  assessed_by: "REPLACE ME"
+  assessed_on: "2026-07-24"
+
+data_flows:
+  - processor: "OpenAI Ireland Ltd"
+    server_region: >-
+      Configurable. Default processing is US-based. European Projects route eligible endpoints
+      in-region within Europe. Set this to whichever you have actually configured — the default is
+      not EU.
+    data_categories:
+      - "prompt content, including any personal data your staff include"
+      - "uploaded files"
+      - "model outputs"
+    special_categories: true
+    retention: >-
+      30 days by default for abuse monitoring. Zero Data Retention is available for eligible
+      enterprise customers on supported endpoints and removes that 30-day window, so prompts and
+      outputs are not stored after the request completes. European Projects are handled in-region
+      with zero data retention on eligible endpoints. Record which applies to you rather than
+      copying this sentence.
+    used_for_training: "no"
+    transfer_mechanism: >-
+      Not applicable where you use European Projects with in-region processing. Otherwise SCCs under
+      the OpenAI DPA.
+    subprocessors: "https://openai.com/policies/sub-processor-list/"
+    dpa_reference: "REPLACE ME — where your signed OpenAI DPA lives"
+    source: "https://help.openai.com/en/articles/10503543-data-residency-for-the-openai-api"
+
+article_50_disclosure:
+  applicable_paragraphs:
+    - "50(1)"
+    - "50(2)"
+  disclosure_text: "REPLACE ME — the wording your users see."
+  where_shown: "At first interaction — AI Act Art. 50(5)"
+  marking_method: >-
+    REPLACE ME — Art. 50(2) machine-readable marking is a provider obligation. If you rebrand this
+    system as your own you may become the provider. Record the marking method actually used (C2PA
+    manifest, metadata tag, watermark).
+  accessibility_notes: "REPLACE ME"
+
+human_oversight:
+  model: "human_on_the_loop"
+  review_triggers:
+    - "REPLACE ME"
+  sop_reference: "../../templates/human-oversight-sop.md"
+  aidr_required: true
+
+legal_basis:
+  gdpr_basis: "REPLACE ME"
+  dpia_reference: "REPLACE ME"
+  processing_record_reference: "REPLACE ME"
+
+oversight_owner:
+  name: "REPLACE ME"
+  role: "REPLACE ME"
+  contact: "REPLACE ME"
+
+known_limitations:
+  - "Fluent output can be confidently wrong."
+  - "Self-reported reasoning is a plausible account, not a trace of the computation."
+  - "Default retention is 30 days for abuse monitoring unless you have Zero Data Retention — check which you have."
+  - "Consumer ChatGPT plans have materially different terms from the API and business plans."
+
+review_cycle: "quarterly"
+last_verified: "2026-07-24"
+verified_by: "REPLACE ME"
+sources:
+  - "https://help.openai.com/en/articles/10503543-data-residency-for-the-openai-api"
+  - "https://openai.com/index/introducing-data-residency-in-europe/"
+  - "https://developers.openai.com/api/docs/guides/your-data"
+  - "https://openai.com/policies/sub-processor-list/"

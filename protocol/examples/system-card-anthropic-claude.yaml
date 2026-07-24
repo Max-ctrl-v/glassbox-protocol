@@ -1,0 +1,108 @@
+# AI System Card — Anthropic Claude (commercial API / Claude Enterprise)
+#
+# Starting point, not a finished card. Replace purpose, oversight_owner, legal_basis and
+# risk_classification with your own facts, and re-verify the data flows against current
+# Anthropic documentation before you rely on them.
+
+card_version: "0.1"
+system_name: "Claude (Anthropic commercial API)"
+
+provider:
+  name: "Anthropic PBC"
+  legal_entity_location: "United States (San Francisco, CA)"
+  eu_representative: "Check the current Anthropic DPA — required under AI Act Art. 22 for providers established outside the Union"
+  contact: "https://support.claude.com"
+
+model:
+  name: "Claude"
+  version: "Set the specific model and snapshot you call, e.g. claude-sonnet-5"
+  type: "General-purpose language model"
+  access_method: "First-party Anthropic API. Also available via Amazon Bedrock and Google Cloud Vertex AI, which changes the data flow — see the note below."
+
+purpose: "REPLACE ME — what your organisation actually uses Claude for, specific enough to serve as a GDPR Art. 30 purpose."
+
+role: "deployer"
+
+risk_classification:
+  class: "not_assessed"
+  rationale: >-
+    The model itself is general-purpose. Your risk class depends on what you use it for. Screening
+    job applicants is Annex III high-risk; drafting internal notes is minimal risk. Assess per use
+    case, not per vendor.
+  assessed_by: "REPLACE ME"
+  assessed_on: "2026-07-24"
+
+data_flows:
+  - processor: "Anthropic PBC"
+    server_region: "US — Anthropic does not offer EU data residency on the first-party API or claude.ai"
+    data_categories:
+      - "prompt content, including any personal data your staff include"
+      - "uploaded files and documents"
+      - "model outputs"
+    special_categories: true
+    retention: >-
+      Commercial API and Enterprise are governed by the commercial terms, which differ from consumer
+      retention. For consumer products Anthropic states: deleted conversations removed from back-end
+      storage within 30 days; inputs and outputs retained up to 2 years and trust-and-safety
+      classification scores up to 7 years where a session is flagged by automated trust and safety
+      systems; feedback retained 5 years; opt-in model-improvement data retained de-identified up to
+      5 years. Confirm the commercial figures in your own contract.
+    used_for_training: "no"
+    transfer_mechanism: "SCCs (Commission Implementing Decision 2021/914), via the Anthropic Commercial DPA"
+    subprocessors: "Listed in and notified under the Anthropic DPA, with a right to object"
+    dpa_reference: "REPLACE ME — available through the Anthropic Console; record where your signed copy lives"
+    source: "https://privacy.claude.com/en/articles/10023548-how-long-do-you-store-my-data"
+
+  # If you need EU processing, this is the route. Delete whichever flow does not apply to you.
+  - processor: "Amazon Web Services (Claude via Amazon Bedrock)"
+    server_region: "EU (eu-central-1, Frankfurt) — inference and storage on AWS infrastructure in Germany"
+    data_categories:
+      - "prompt content"
+      - "model outputs"
+    special_categories: true
+    retention: "Per your AWS Bedrock configuration and AWS terms, not Anthropic's"
+    used_for_training: "no"
+    transfer_mechanism: "Not applicable — EU processing, under your existing AWS DPA"
+    subprocessors: "https://aws.amazon.com/compliance/sub-processors/"
+    dpa_reference: "REPLACE ME — your AWS DPA"
+    source: "https://compound.law/en-DE/tools/claude-eu-hosting/"
+
+article_50_disclosure:
+  applicable_paragraphs:
+    - "50(1)"
+  disclosure_text: >-
+    REPLACE ME — the exact wording your users see. Example: "You are chatting with an AI assistant,
+    not a person."
+  where_shown: "At the start of the interaction, before the first exchange — AI Act Art. 50(5)"
+  accessibility_notes: "REPLACE ME — how the disclosure works for screen reader and voice users"
+
+human_oversight:
+  model: "human_on_the_loop"
+  review_triggers:
+    - "REPLACE ME — e.g. any output that affects a customer's contract, price, or employment"
+  sop_reference: "../../templates/human-oversight-sop.md"
+  aidr_required: true
+
+legal_basis:
+  gdpr_basis: "REPLACE ME — e.g. Art. 6(1)(f) legitimate interests, with a balancing test on file"
+  dpia_reference: "REPLACE ME"
+  processing_record_reference: "REPLACE ME — your Art. 30 record entry"
+
+oversight_owner:
+  name: "REPLACE ME"
+  role: "REPLACE ME"
+  contact: "REPLACE ME"
+
+known_limitations:
+  - "Generates fluent text that can be confidently wrong. Fluency is not accuracy."
+  - "Cannot reliably report its own reasoning. Self-reports are plausible accounts, not traces of the computation."
+  - "Training data has a cutoff; recent events are unknown unless supplied in context or retrieved."
+  - "No EU data residency on the first-party API — use Bedrock or Vertex AI if that is a requirement."
+
+review_cycle: "quarterly"
+last_verified: "2026-07-24"
+verified_by: "REPLACE ME"
+sources:
+  - "https://privacy.claude.com/en/articles/10023548-how-long-do-you-store-my-data"
+  - "https://www.anthropic.com/legal/commercial-terms"
+  - "https://trust.anthropic.com/"

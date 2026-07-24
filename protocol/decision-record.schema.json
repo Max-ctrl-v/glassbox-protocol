@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Max-ctrl-v/glassbox-protocol/protocol/decision-record.schema.json",
+  "title": "AI Decision Record (AIDR)",
+  "description": "A record of one consequential AI-assisted output: what was asked, what the model relied on, how confident it was, where the data went, and whether a human reviewed it. Written at decision time, not reconstructed later.",
+  "type": "object",
+  "required": [
+    "aidr_version",
+    "id",
+    "timestamp",
+    "system",
+    "purpose",
+    "input_summary",
+    "output_summary",
+    "data_recipients",
+    "reasoning_summary",
+    "confidence",
+    "limitations",
+    "human_review"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "aidr_version": {
+      "description": "Version of this schema the record conforms to.",
+      "type": "string",
+      "const": "0.1"
+    },
+    "id": {
+      "description": "Unique identifier for this record. UUID or any collision-free scheme.",
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "description": "When the output was produced, ISO 8601 with timezone.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "system": {
+      "description": "Which AI system produced this output. Should reference a system card.",
+      "type": "object",
+      "required": ["name", "provider", "model"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "description": "Internal name of the deployed system, e.g. 'support-assistant'." },
+        "provider": { "type": "string", "minLength": 1, "description": "Legal entity providing the model, e.g. 'Anthropic PBC'." },
+        "model": { "type": "string", "minLength": 1, "description": "Model identifier as reported by the provider." },
+        "model_version": { "type": "string", "description": "Version or snapshot, where the provider exposes one." },
+        "system_card": { "type": "string", "description": "Path or URL to the system card for this system." }
+      }
+    },
+    "purpose": {
+      "description": "What this AI output was for, in plain language. An affected person should understand it.",
+      "type": "string",
+      "minLength": 10
+    },
+    "input_summary": {
+      "description": "What was asked and what context was supplied. Summarise; do not copy personal data into the record.",
+      "type": "string",
+      "minLength": 1
+    },
+    "output_summary": {
+      "description": "What the AI produced or recommended.",
+      "type": "string",
+      "minLength": 1
+    },
+    "data_recipients": {
+      "description": "Every party that received data in the course of producing this output. GDPR Art. 13(1)(e), 15(1)(c). An empty array means the model ran entirely on infrastructure you control; state that explicitly rather than omitting recipients.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["processor", "server_region", "data_categories"],
+        "additionalProperties": false,
+        "properties": {
+          "processor": { "type": "string", "minLength": 1, "description": "Legal entity receiving the data." },
+          "server_region": { "type": "string", "minLength": 1, "description": "Where processing took place, e.g. 'US', 'EU (eu-central-1, Frankfurt)', 'on-premise'." },
+          "data_categories": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" },
+            "description": "Categories of data transferred, e.g. 'customer name', 'support ticket text'. Flag GDPR Art. 9 special categories explicitly."
+          },
+          "transfer_mechanism": {
+            "type": "string",
+            "description": "Legal basis for a third-country transfer, e.g. 'SCCs (2021/914)', 'adequacy decision', 'not applicable — EU processing'."
+          },
+          "retention": { "type": "string", "description": "How long the processor keeps it, e.g. '30 days abuse monitoring', 'zero retention'." }
+        }
+      }
+    },
+    "reasoning_summary": {
+      "description": "How the output was reached, in terms a non-specialist can follow. This is a self-report, not a faithful account of the model's internal computation — see the honest-limits note in the README.",
+      "type": "string",
+      "minLength": 10
+    },
+    "sources": {
+      "description": "What the output actually relied on: documents, records, retrieved passages, tool results.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "reference"],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["document", "database", "web", "tool_output", "user_provided", "model_knowledge"],
+            "description": "'model_knowledge' means it came from training data and is not independently verifiable."
+          },
+          "reference": { "type": "string", "minLength": 1, "description": "Identifier, path, URL, or query." },
+          "relevance": { "type": "string", "description": "What this source contributed." }
+        }
+      }
+    },
+    "confidence": {
+      "description": "How reliable this output is. 'level' is required; 'rationale' explains it.",
+      "type": "object",
+      "required": ["level"],
+      "additionalProperties": false,
+      "properties": {
+        "level": { "type": "string", "enum": ["high", "medium", "low"] },
+        "rationale": { "type": "string", "description": "Why this level. What would raise or lower it." }
+      }
+    },
+    "limitations": {
+      "description": "What this output does not cover, what could make it wrong, what was assumed. An empty array asserts there are none — rarely true. State at least one limitation or justify the emptiness in reasoning_summary.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "human_review": {
+      "description": "Whether a human checked this before it took effect. Central to AI Act Art. 14 and 26(2), the Art. 50(4) editorial-review exemption, and GDPR Art. 22.",
+      "type": "object",
+      "required": ["required"],
+      "additionalProperties": false,
+      "properties": {
+        "required": { "type": "boolean", "description": "Whether human review was required before this output could take effect." },
+        "reason": { "type": "string", "description": "Why review was or was not required." },
+        "reviewer": { "type": "string", "description": "Who reviewed. A role plus an identifier, not just 'a manager'." },
+        "decision": {
+          "type": "string",
+          "enum": ["approved", "modified", "rejected", "pending"],
+          "description": "Outcome. If every record in your store says 'approved', that is a rubber-stamp signal, not a clean sheet — see gdpr-mapping.md."
+        },
+        "decision_notes": { "type": "string", "description": "What the reviewer changed or why they agreed." },
+        "timestamp": { "type": "string", "format": "date-time", "description": "When the review happened." }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "required": { "const": true } }, "required": ["required"] },
+          "then": { "required": ["required", "decision"] }
+        },
+        {
+          "if": {
+            "properties": { "decision": { "enum": ["approved", "modified", "rejected"] } },
+            "required": ["decision"]
+          },
+          "then": { "required": ["reviewer", "timestamp"] }
+        }
+      ]
+    },
+    "affected_persons": {
+      "description": "Whether this output affects identifiable people, and whether they were told. Drives AI Act Art. 26(11) and 86, and GDPR Art. 22.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "affects_individuals": { "type": "boolean" },
+        "categories": { "type": "array", "items": { "type": "string" }, "description": "e.g. 'job applicants', 'loan applicants'." },
+        "notified": { "type": "boolean", "description": "Whether affected persons were informed that AI was involved." },
+        "explanation_available": { "type": "boolean", "description": "Whether an Art. 86 explanation can be produced on request." }
+      }
+    },
+    "disclosure": {
+      "description": "Which AI Act Art. 50 disclosures were made for this interaction.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ai_interaction_disclosed": { "type": "boolean", "description": "Art. 50(1) — the person was told they were dealing with AI." },
+        "synthetic_content_marked": { "type": "boolean", "description": "Art. 50(2) — machine-readable marking applied." },
+        "marking_method": { "type": "string", "description": "e.g. 'C2PA manifest', 'SynthID', 'metadata tag'." },
+        "deepfake_disclosed": { "type": "boolean", "description": "Art. 50(4)." },
+        "disclosure_text": { "type": "string", "description": "The wording actually shown." }
+      }
+    },
+    "risk_classification": {
+      "description": "AI Act risk class of the system producing this output.",
+      "type": "string",
+      "enum": ["prohibited", "high_risk", "limited_risk_transparency", "minimal_risk", "not_assessed"]
+    },
+    "retention_until": {
+      "description": "When this record may be deleted, ISO 8601. AI Act Art. 26(6) requires at least six months for high-risk system logs; other laws may require longer.",
+      "type": "string",
+      "format": "date"
+    },
+    "prev_record_hash": {
+      "description": "SHA-256 of the previous record in the chain, hex-encoded. Optional tamper-evidence — see logging-guide.md.",
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "tags": {
+      "description": "Free-form labels for retrieval.",
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

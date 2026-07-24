@@ -1,0 +1,54 @@
+{
+  "aidr_version": "0.1",
+  "id": "aidr-2026-07-24-7b0e5518",
+  "timestamp": "2026-07-24T14:22:51+02:00",
+  "system": {
+    "name": "customer-support-bot",
+    "provider": "OpenAI Ireland Ltd",
+    "model": "gpt-5.2",
+    "system_card": "../examples/system-card-openai-api.yaml"
+  },
+  "purpose": "Answer a customer's billing question in the web chat widget and decide whether to escalate to a human agent.",
+  "input_summary": "Customer asked why an invoice was higher than the previous month. Account reference and the last three invoices were retrieved from the billing system and supplied as context.",
+  "output_summary": "Explained that the increase comes from two additional seats added on 3 July and the resulting mid-cycle proration. Offered a link to the seat management page. No escalation.",
+  "data_recipients": [
+    {
+      "processor": "OpenAI Ireland Ltd",
+      "server_region": "EU (European data residency project)",
+      "data_categories": ["customer account reference", "invoice amounts and line items", "chat message text"],
+      "transfer_mechanism": "Not applicable — in-region EU processing",
+      "retention": "Zero data retention on eligible endpoints; not stored at rest after the request completes"
+    }
+  ],
+  "reasoning_summary": "The invoice delta of €118.00 was matched against the line items. Two seats were added on 3 July at €59.00 each, prorated for the remaining 28 days of the cycle. The arithmetic reconciles to the cent, so no other cause needed to be considered. Escalation was not triggered because the question is factual, the answer is verifiable from the retrieved records, and no refund or credit was requested.",
+  "sources": [
+    { "type": "database", "reference": "billing.invoices where account_ref = ACC-88213, last 3 periods", "relevance": "The invoice line items the explanation is built on" },
+    { "type": "document", "reference": "kb/proration-policy.md", "relevance": "How mid-cycle seat additions are billed" }
+  ],
+  "confidence": {
+    "level": "high",
+    "rationale": "The explanation is arithmetic over retrieved records, not an inference. The figures reconcile exactly."
+  },
+  "limitations": [
+    "Explains what was billed, not whether the seats should have been added — that is an account question the customer may still dispute.",
+    "Only the last three invoices were retrieved, so a longer-running pattern would not be visible."
+  ],
+  "human_review": {
+    "required": false,
+    "reason": "Informational answer with no legal or financial effect. No credit, refund, or account change was made. Escalation to a human is available in the widget at any point, and the customer was told so."
+  },
+  "affected_persons": {
+    "affects_individuals": true,
+    "categories": ["customers"],
+    "notified": true,
+    "explanation_available": true
+  },
+  "disclosure": {
+    "ai_interaction_disclosed": true,
+    "disclosure_text": "You are chatting with an AI assistant, not a person. Type 'agent' at any time to reach a human colleague.",
+    "deepfake_disclosed": false
+  },
+  "risk_classification": "limited_risk_transparency",
+  "retention_until": "2027-01-24",
+  "tags": ["support", "article-50", "no-escalation"]
+}

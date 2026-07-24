@@ -1,0 +1,89 @@
+# AI System Card — Microsoft 365 Copilot / Azure OpenAI
+#
+# Starting point, not a finished card. The consumer Copilot and Microsoft 365 Copilot are
+# different products under different terms. Consumer Copilot is not covered by the EU Data
+# Boundary — do not use it for business data.
+
+card_version: "0.1"
+system_name: "Microsoft 365 Copilot"
+
+provider:
+  name: "Microsoft Ireland Operations Ltd (EEA) / Microsoft Corporation"
+  legal_entity_location: "Ireland (EEA contracting entity); United States (parent)"
+  contact: "https://learn.microsoft.com/microsoft-365/copilot/"
+
+model:
+  name: "Microsoft 365 Copilot"
+  type: "General-purpose language model integrated into Microsoft 365"
+  access_method: >-
+    REPLACE ME — Microsoft 365 Copilot, Azure OpenAI Service, GitHub Copilot, or consumer Copilot.
+    These have materially different data terms.
+
+purpose: "REPLACE ME"
+
+role: "deployer"
+
+risk_classification:
+  class: "not_assessed"
+  rationale: "General-purpose assistant. Classify per use case."
+  assessed_by: "REPLACE ME"
+  assessed_on: "2026-07-24"
+
+data_flows:
+  - processor: "Microsoft Ireland Operations Ltd"
+    server_region: >-
+      EU Data Boundary for European Microsoft 365 Copilot customers — prompts and responses are
+      processed and stored within the EU/EEA. Consumer Copilot is NOT covered by the EU Data
+      Boundary. Azure OpenAI follows your chosen Azure region.
+    data_categories:
+      - "prompt content"
+      - "Microsoft 365 content surfaced through Graph grounding — mail, files, chats, calendar"
+      - "model outputs"
+    special_categories: true
+    retention: >-
+      Per your Microsoft 365 tenant retention policy. Azure OpenAI retains data 30 days for abuse
+      monitoring by default; modified abuse monitoring removing that retention can be requested for
+      eligible sensitive workloads.
+    used_for_training: "no"
+    transfer_mechanism: "Not applicable within the EU Data Boundary; otherwise SCCs under the Microsoft Products and Services DPA"
+    subprocessors: "https://www.microsoft.com/licensing/docs/view/Microsoft-Products-and-Services-Data-Protection-Addendum-DPA"
+    dpa_reference: "REPLACE ME — Microsoft Products and Services DPA"
+    source: "https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-privacy"
+
+article_50_disclosure:
+  applicable_paragraphs:
+    - "50(1)"
+  disclosure_text: "REPLACE ME"
+  where_shown: "At first interaction — AI Act Art. 50(5)"
+  accessibility_notes: "REPLACE ME"
+
+human_oversight:
+  model: "human_on_the_loop"
+  review_triggers:
+    - "REPLACE ME"
+  sop_reference: "../../templates/human-oversight-sop.md"
+  aidr_required: true
+
+legal_basis:
+  gdpr_basis: "REPLACE ME"
+  dpia_reference: "REPLACE ME"
+  processing_record_reference: "REPLACE ME"
+
+oversight_owner:
+  name: "REPLACE ME"
+  role: "REPLACE ME"
+  contact: "REPLACE ME"
+
+known_limitations:
+  - "Fluent output can be confidently wrong."
+  - "Graph grounding means Copilot can surface content the user has access to but had forgotten exists — a permissions hygiene problem before it is an AI problem."
+  - "Consumer Copilot is a different product on different terms and is not covered by the EU Data Boundary."
+  - "Azure OpenAI default abuse-monitoring retention is 30 days unless modified monitoring is approved."
+
+review_cycle: "quarterly"
+last_verified: "2026-07-24"
+verified_by: "REPLACE ME"
+sources:
+  - "https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-privacy"
+  - "https://www.microsoft.com/en-us/microsoft-365/blog/2025/11/04/microsoft-offers-in-country-data-processing-to-15-countries-to-strengthen-sovereign-controls-for-microsoft-365-copilot/"
+  - "https://learn.microsoft.com/en-us/power-platform/admin/geographical-availability-copilot"

@@ -1,0 +1,59 @@
+{
+  "aidr_version": "0.1",
+  "id": "aidr-2026-07-24-1de9f307",
+  "timestamp": "2026-07-24T16:05:12+02:00",
+  "system": {
+    "name": "market-research-assistant",
+    "provider": "Microsoft Ireland Operations Ltd",
+    "model": "Microsoft 365 Copilot (GPT-5 class)",
+    "system_card": "../examples/system-card-microsoft-copilot.yaml"
+  },
+  "purpose": "Draft an internal briefing on competitor pricing in the DACH mid-market segment, to inform a pricing review meeting.",
+  "input_summary": "Request for a competitor pricing overview. Context drawn from four public competitor websites and two internal SharePoint documents from the 2025 pricing review.",
+  "output_summary": "A two-page briefing comparing list pricing across five competitors, with three observed patterns and an explicit note that two competitors publish no pricing at all.",
+  "data_recipients": [
+    {
+      "processor": "Microsoft Ireland Operations Ltd",
+      "server_region": "EU Data Boundary",
+      "data_categories": ["internal pricing documents", "employee prompt text"],
+      "transfer_mechanism": "Not applicable — processed within the EU Data Boundary",
+      "retention": "Per Microsoft 365 tenant retention policy; not used to train foundation models"
+    }
+  ],
+  "reasoning_summary": "List prices were read from public pricing pages for three of five competitors. For the two that publish no pricing, the briefing says so rather than estimating. Patterns were derived by comparing per-seat prices at the same tier boundaries. The internal 2025 documents were used only to identify which competitors to compare, not as a price source, because they are eighteen months old.",
+  "sources": [
+    { "type": "web", "reference": "https://competitor-a.example/pricing", "relevance": "List pricing, retrieved 2026-07-24" },
+    { "type": "web", "reference": "https://competitor-b.example/pricing", "relevance": "List pricing, retrieved 2026-07-24" },
+    { "type": "web", "reference": "https://competitor-c.example/preise", "relevance": "List pricing, DACH region, retrieved 2026-07-24" },
+    { "type": "document", "reference": "SharePoint/Pricing/2025-competitive-review.docx", "relevance": "Which competitors are in scope" },
+    { "type": "model_knowledge", "reference": "General SaaS pricing structures", "relevance": "Framing of the tier comparison. Not independently verifiable and not used for any specific figure." }
+  ],
+  "confidence": {
+    "level": "low",
+    "rationale": "Published list prices are frequently not the prices actually paid in mid-market deals. Two of five competitors publish nothing, so the comparison covers a majority but not the segment. Treat as a starting point for the meeting, not an input to a pricing decision."
+  },
+  "limitations": [
+    "List prices only. Negotiated and channel pricing is not visible and is typically materially lower.",
+    "Two of five competitors publish no pricing; the briefing has a hole where they should be.",
+    "Prices captured on a single day. Competitors change pricing without notice.",
+    "No feature-parity normalisation, so per-seat prices are not strictly comparable across vendors."
+  ],
+  "human_review": {
+    "required": true,
+    "reason": "Feeds a commercial decision. Low confidence and known gaps mean the briefing must not circulate without someone qualified reading the caveats.",
+    "reviewer": "S. Brandt, Head of Commercial (emp-1108)",
+    "decision": "approved",
+    "decision_notes": "Approved for internal circulation with the confidence note kept in the header. Asked the team to pull two anonymised deal quotes before the meeting so the discussion is not anchored on list prices.",
+    "timestamp": "2026-07-24T17:30:00+02:00"
+  },
+  "affected_persons": {
+    "affects_individuals": false
+  },
+  "disclosure": {
+    "ai_interaction_disclosed": true,
+    "disclosure_text": "Drafted with AI assistance. Reviewed by S. Brandt on 2026-07-24. See the confidence note before quoting any figure."
+  },
+  "risk_classification": "minimal_risk",
+  "retention_until": "2028-07-24",
+  "tags": ["internal", "research", "low-confidence"]
+}

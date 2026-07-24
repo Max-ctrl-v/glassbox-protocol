@@ -1,0 +1,94 @@
+# AI System Card — Google Gemini (Vertex AI / Gemini API / Workspace)
+#
+# Starting point, not a finished card. Google's posture differs sharply between the free tier,
+# the paid API, Vertex AI, and Workspace. Delete the flows that do not apply to you.
+
+card_version: "0.1"
+system_name: "Google Gemini"
+
+provider:
+  name: "Google Ireland Ltd (EEA) / Google LLC"
+  legal_entity_location: "Ireland (EEA contracting entity); United States (parent)"
+  contact: "https://support.google.com"
+
+model:
+  name: "REPLACE ME — e.g. gemini-3-pro"
+  type: "General-purpose multimodal model"
+  access_method: >-
+    REPLACE ME — pick one: Vertex AI (strongest enterprise posture), paid Gemini API, Gemini for
+    Google Workspace, or the free consumer tier. The free tier is not suitable for business data.
+
+purpose: "REPLACE ME"
+
+role: "deployer"
+
+risk_classification:
+  class: "not_assessed"
+  rationale: "General-purpose model. Classify per use case."
+  assessed_by: "REPLACE ME"
+  assessed_on: "2026-07-24"
+
+data_flows:
+  - processor: "Google Ireland Ltd / Google LLC (Vertex AI)"
+    server_region: >-
+      Configurable. Using the European Union multi-region endpoint or an EU jurisdictional endpoint
+      keeps ML processing within EU member states. Without a jurisdictional endpoint, processing is
+      not EU-confined — record which you configured.
+    data_categories:
+      - "prompt content"
+      - "uploaded files"
+      - "model outputs"
+    special_categories: true
+    retention: >-
+      Vertex AI supports zero-data-retention-equivalent terms for eligible enterprise customers
+      through a Data Processing Addendum amendment. Without that amendment, standard retention
+      applies. For Gemini in Workspace, activity retention is configurable at 3, 18 or 36 months or
+      indefinite, defaulting to 18 months.
+    used_for_training: "no"
+    transfer_mechanism: "Not applicable where an EU jurisdictional endpoint is used; otherwise SCCs under the Google Cloud DPA"
+    subprocessors: "https://cloud.google.com/terms/subprocessors"
+    dpa_reference: "REPLACE ME — your Google Cloud or Workspace DPA"
+    source: "https://docs.cloud.google.com/gemini-enterprise-agent-platform/resources/data-residency"
+
+article_50_disclosure:
+  applicable_paragraphs:
+    - "50(1)"
+  disclosure_text: "REPLACE ME"
+  where_shown: "At first interaction — AI Act Art. 50(5)"
+  marking_method: >-
+    Google applies SynthID watermarking to some generated media. If you are the provider of a system
+    built on Gemini, confirm what marking actually reaches your output before claiming Art. 50(2)
+    compliance.
+  accessibility_notes: "REPLACE ME"
+
+human_oversight:
+  model: "human_on_the_loop"
+  review_triggers:
+    - "REPLACE ME"
+  sop_reference: "../../templates/human-oversight-sop.md"
+  aidr_required: true
+
+legal_basis:
+  gdpr_basis: "REPLACE ME"
+  dpia_reference: "REPLACE ME"
+  processing_record_reference: "REPLACE ME"
+
+oversight_owner:
+  name: "REPLACE ME"
+  role: "REPLACE ME"
+  contact: "REPLACE ME"
+
+known_limitations:
+  - "Fluent output can be confidently wrong."
+  - "Self-reported reasoning is not a trace of the computation."
+  - "Terms differ sharply across free tier, paid API, Vertex AI and Workspace. The free tier does not carry the enterprise protections."
+  - "EU-confined processing requires deliberately configuring a jurisdictional endpoint. It is not the default."
+
+review_cycle: "quarterly"
+last_verified: "2026-07-24"
+verified_by: "REPLACE ME"
+sources:
+  - "https://docs.cloud.google.com/gemini-enterprise-agent-platform/resources/data-residency"
+  - "https://docs.cloud.google.com/gemini-enterprise-agent-platform/resources/zero-data-retention"
+  - "https://docs.cloud.google.com/gemini/enterprise/docs/locations"
+  - "https://cloud.google.com/terms/subprocessors"

@@ -1,0 +1,19 @@
+{
+  "name": "glassbox-protocol",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Validation tooling for Glassbox Protocol artefacts",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "test": "node scripts/test-validator.mjs",
+    "check:links": "node scripts/check-links.mjs",
+    "check": "npm test && npm run validate && npm run check:links"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "js-yaml": "^4.1.0"
+  }
+}

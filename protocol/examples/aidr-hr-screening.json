@@ -1,0 +1,59 @@
+{
+  "aidr_version": "0.1",
+  "id": "aidr-2026-07-24-a4f19c22",
+  "timestamp": "2026-07-24T09:14:03+02:00",
+  "system": {
+    "name": "recruiting-assistant",
+    "provider": "Anthropic PBC",
+    "model": "claude-sonnet-5",
+    "system_card": "../examples/system-card-anthropic-claude.yaml"
+  },
+  "purpose": "Summarise an application against the published requirements for the Senior Backend Engineer role, to prepare a human hiring decision.",
+  "input_summary": "One CV and cover letter (candidate reference APP-2026-0412), plus the published job requirements. No demographic data supplied.",
+  "output_summary": "A structured summary of relevant experience with three requirement gaps noted, and a recommendation to proceed to a first interview.",
+  "data_recipients": [
+    {
+      "processor": "Anthropic PBC",
+      "server_region": "US",
+      "data_categories": ["candidate name", "employment history", "education history", "free-text cover letter"],
+      "transfer_mechanism": "SCCs (Commission Implementing Decision 2021/914) under the Anthropic Commercial DPA",
+      "retention": "Not retained for training; API inputs and outputs handled under the commercial terms"
+    }
+  ],
+  "reasoning_summary": "Each published requirement was checked against statements in the CV. Six of nine requirements are evidenced by named projects with dates. Three are not mentioned at all: Kubernetes operations, on-call experience, and formal mentoring. The recommendation to interview rests on the six evidenced requirements and on eight years of relevant backend experience; it does not rest on any assessment of the candidate as a person.",
+  "sources": [
+    { "type": "user_provided", "reference": "APP-2026-0412 CV and cover letter", "relevance": "The only evidence about the candidate" },
+    { "type": "document", "reference": "job-requirements/senior-backend-engineer-v3.md", "relevance": "The criteria applied" }
+  ],
+  "confidence": {
+    "level": "medium",
+    "rationale": "Requirement matching from a CV is reliable for what is written and blind to what is not. Absence of a skill in a CV is not evidence of its absence in the candidate."
+  },
+  "limitations": [
+    "Only assesses what the candidate chose to write down. Unstated experience is invisible to this process.",
+    "Cannot assess communication, collaboration, or judgement — an interview does that.",
+    "Career gaps were not interpreted, since interpretation risks indirect discrimination.",
+    "Self-reported seniority in a CV was taken at face value and not verified."
+  ],
+  "human_review": {
+    "required": true,
+    "reason": "Recruitment screening is an Annex III high-risk use case and produces effects on individuals. No candidate is advanced or rejected on this output alone.",
+    "reviewer": "J. Weber, Talent Acquisition Lead (emp-2214)",
+    "decision": "modified",
+    "decision_notes": "Agreed on advancing to interview. Removed the model's inference about 'likely culture fit', which was unsupported by the source material. Added a note to probe Kubernetes experience directly rather than treating its absence as disqualifying.",
+    "timestamp": "2026-07-24T11:40:00+02:00"
+  },
+  "affected_persons": {
+    "affects_individuals": true,
+    "categories": ["job applicants"],
+    "notified": true,
+    "explanation_available": true
+  },
+  "disclosure": {
+    "ai_interaction_disclosed": true,
+    "disclosure_text": "We use an AI assistant to summarise applications against the published role requirements. Every decision is made by a member of our hiring team. You can ask us how AI was used in your application at any time."
+  },
+  "risk_classification": "high_risk",
+  "retention_until": "2029-07-24",
+  "tags": ["recruitment", "annex-iii", "human-reviewed"]
+}
