@@ -1,5 +1,6 @@
 node_modules/
-package-lock.json
+# package-lock.json is committed on purpose: CI runs npm ci, and a validator whose
+# dependency versions drift is a validator whose results are not reproducible.
 .DS_Store
 Thumbs.db
 *.log
