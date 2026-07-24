@@ -187,10 +187,41 @@ const cases = [
   },
 ];
 
-/** Sanity check: the bases themselves must pass, or every negative result is meaningless. */
+/**
+ * Positive cases: states the protocol must accept.
+ *
+ * The pending-review case is here because an earlier version of the schema rejected it. The skill
+ * forbids the model from recording a review it did not perform, so a record awaiting review is the
+ * normal output of a correctly behaving model — and it has to validate, or the schema punishes the
+ * exact behaviour it should reward.
+ */
 const sanity = [
   { name: "base AIDR is valid", validate: validateAidr, doc: baseAidr() },
   { name: "base system card is valid", validate: validateCard, doc: baseCard() },
+  {
+    name: "AIDR awaiting review is valid at emission time",
+    validate: validateAidr,
+    doc: (() => {
+      const d = baseAidr();
+      d.human_review = { required: true, reason: "Affects a customer's contract.", decision: "pending" };
+      return d;
+    })(),
+  },
+  {
+    name: "AIDR with a completed review is valid",
+    validate: validateAidr,
+    doc: (() => {
+      const d = baseAidr();
+      d.human_review = {
+        required: true,
+        reason: "Affects a customer's contract.",
+        reviewer: "A. Person (emp-1)",
+        decision: "modified",
+        timestamp: "2026-07-24T13:00:00+02:00",
+      };
+      return d;
+    })(),
+  },
 ];
 
 let failed = 0;

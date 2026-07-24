@@ -137,7 +137,7 @@
         "decision": {
           "type": "string",
           "enum": ["approved", "modified", "rejected", "pending"],
-          "description": "Outcome. If every record in your store says 'approved', that is a rubber-stamp signal, not a clean sheet — see gdpr-mapping.md."
+          "description": "Outcome. A record emitted at generation time carries 'pending' — the review has not happened yet, and the model must never write anything else here. The reviewer replaces it with the real outcome, adding reviewer and timestamp. If every completed record in your store says 'approved', that is a rubber-stamp signal, not a clean sheet — see gdpr-mapping.md."
         },
         "decision_notes": { "type": "string", "description": "What the reviewer changed or why they agreed." },
         "timestamp": { "type": "string", "format": "date-time", "description": "When the review happened." }
