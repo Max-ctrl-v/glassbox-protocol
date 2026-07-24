@@ -34,6 +34,16 @@ these cards, open the URLs in its `sources` list and check the facts still hold.
 [open an issue](https://github.com/Max-ctrl-v/glassbox-protocol/issues) — that keeps the cards useful
 for everyone.
 
+### No real data in here
+
+Every name, employee reference, account number, and incident id in these examples is deliberately
+synthetic — `A. Reviewer (reviewer-01)`, `APP-2026-0412`, `competitor-a.example`. Nothing resembles
+a real person, customer, or organisation, and nothing should.
+
+Keep it that way in contributions. A repository about handling personal data carefully is a poor
+place to leave realistic-looking personal data lying around, even invented. Prefer obviously
+fictional over plausible.
+
 ## Conventions
 
 - **Naming:** `aidr-*.json` for decision records, `system-card-*.yaml` for system cards. The

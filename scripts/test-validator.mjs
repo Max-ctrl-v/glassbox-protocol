@@ -97,7 +97,7 @@ const cases = [
     why: "Without a time, a review cannot be shown to have preceded the decision",
     doc: () => {
       const d = baseAidr();
-      d.human_review = { required: true, decision: "approved", reviewer: "A. Person" };
+      d.human_review = { required: true, decision: "approved", reviewer: "A. Reviewer" };
       return d;
     },
   },
@@ -215,7 +215,7 @@ const sanity = [
       d.human_review = {
         required: true,
         reason: "Affects a customer's contract.",
-        reviewer: "A. Person (emp-1)",
+        reviewer: "A. Reviewer (reviewer-01)",
         decision: "modified",
         timestamp: "2026-07-24T13:00:00+02:00",
       };

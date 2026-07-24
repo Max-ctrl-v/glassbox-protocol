@@ -66,7 +66,7 @@ Update the record's `human_review` block:
 "human_review": {
   "required": true,
   "reason": "...",
-  "reviewer": "J. Weber, Talent Acquisition Lead (emp-2214)",
+  "reviewer": "A. Reviewer, Talent Acquisition Lead (reviewer-01)",
   "decision": "approved | modified | rejected",
   "decision_notes": "What you changed, or why you agreed",
   "timestamp": "2026-07-24T11:40:00+02:00"

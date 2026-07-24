@@ -41,7 +41,7 @@
   "human_review": {
     "required": true,
     "reason": "Feeds a commercial decision. Low confidence and known gaps mean the briefing must not circulate without someone qualified reading the caveats.",
-    "reviewer": "S. Brandt, Head of Commercial (emp-1108)",
+    "reviewer": "B. Reviewer, Head of Commercial (reviewer-02)",
     "decision": "approved",
     "decision_notes": "Approved for internal circulation with the confidence note kept in the header. Asked the team to pull two anonymised deal quotes before the meeting so the discussion is not anchored on list prices.",
     "timestamp": "2026-07-24T17:30:00+02:00"
@@ -51,7 +51,7 @@
   },
   "disclosure": {
     "ai_interaction_disclosed": true,
-    "disclosure_text": "Drafted with AI assistance. Reviewed by S. Brandt on 2026-07-24. See the confidence note before quoting any figure."
+    "disclosure_text": "Drafted with AI assistance. Reviewed by B. Reviewer on 2026-07-24. See the confidence note before quoting any figure."
   },
   "risk_classification": "minimal_risk",
   "retention_until": "2028-07-24",

@@ -38,7 +38,7 @@
   "human_review": {
     "required": true,
     "reason": "Recruitment screening is an Annex III high-risk use case and produces effects on individuals. No candidate is advanced or rejected on this output alone.",
-    "reviewer": "J. Weber, Talent Acquisition Lead (emp-2214)",
+    "reviewer": "A. Reviewer, Talent Acquisition Lead (reviewer-01)",
     "decision": "modified",
     "decision_notes": "Agreed on advancing to interview. Removed the model's inference about 'likely culture fit', which was unsupported by the source material. Added a note to probe Kubernetes experience directly rather than treating its absence as disqualifying.",
     "timestamp": "2026-07-24T11:40:00+02:00"
