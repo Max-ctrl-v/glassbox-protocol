@@ -26,6 +26,7 @@
 import { readFileSync, appendFileSync, mkdirSync, existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { appendRecord } from "../lib/chain.mjs";
+import { assembleRecord } from "../lib/assemble.mjs";
 
 // --- configuration, from the environment so no secrets or deployment specifics live in the repo ---
 const DIR = process.env.GLASSBOX_DIR || ".glassbox";
@@ -128,48 +129,18 @@ function finalize(dir, session, payload) {
   const steps = readSteps(dir, session);
   if (steps.length === 0) return; // nothing observed this session; nothing to record
 
-  const numbered = steps.map((s, idx) => ({ step: idx + 1, ...s }));
-  const model = extractModelAidr(payload.transcript_path);
-  const store = join(dir, "records.jsonl");
   mkdirSync(dir, { recursive: true });
+  const record = assembleRecord({
+    steps,
+    model: extractModelAidr(payload.transcript_path),
+    system: SYSTEM,
+    region: REGION,
+    capturedBy: CAPTURED_BY,
+    stamp: isoStamp(payload), // omit rather than invent a time the runtime did not supply
+    id: `aidr-${session || "session"}-${steps.length}`,
+  });
 
-  // A timestamp is used only if the runtime supplied one; the hook never invents a time it cannot
-  // stand behind. When absent, the field is simply omitted (the schema permits that for capture-only
-  // records).
-  const stamp = isoStamp(payload);
-  const stampField = stamp ? { created_at: stamp } : {};
-
-  let record;
-  if (model) {
-    // Hybrid: the model's judgement, the hook's observed trace. The observed trace replaces any
-    // self_reported one — grounded steps are strictly better evidence than narrated ones.
-    record = {
-      ...model,
-      aidr_version: "0.2",
-      trace: numbered,
-      attestation: { method: "hybrid", captured_by: CAPTURED_BY, ...stampField },
-    };
-  } else {
-    // Capture-only: observed facts, no model judgement to merge. reasoning/confidence/limitations are
-    // model-only assessments, so an application_captured record omits them rather than inventing them
-    // — the schema permits that for this method precisely because a machine cannot assess confidence.
-    const task = numbered.find((s) => s.type === "task_received");
-    record = {
-      aidr_version: "0.2",
-      id: `aidr-${session || "session"}-${numbered.length}`,
-      ...(stamp ? { timestamp: stamp } : {}),
-      system: SYSTEM,
-      purpose: "Captured automatically by the Glassbox hook; no model self-report was present to state the purpose.",
-      input_summary: truncate(task ? task.summary : "Task not captured."),
-      output_summary: "Not captured at this layer — no model AI Decision Record was emitted to merge.",
-      data_recipients: [{ processor: SYSTEM.provider, server_region: REGION, data_categories: ["prompt text", "tool inputs and outputs"] }],
-      trace: numbered,
-      human_review: { required: true, reason: "Machine-captured record with no model self-report; a human should confirm what this output was and whether it needed review.", decision: "pending" },
-      attestation: { method: "application_captured", captured_by: CAPTURED_BY, ...stampField },
-    };
-  }
-
-  appendRecord(store, record);
+  appendRecord(join(dir, "records.jsonl"), record);
   rmSync(sessionTracePath(dir, session), { force: true }); // session closed; clear its scratch trace
 }
 

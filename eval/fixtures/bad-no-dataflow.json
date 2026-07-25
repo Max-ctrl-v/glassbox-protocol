@@ -1,0 +1,66 @@
+{
+  "label": "no server region on the recipient",
+  "expect_pass": false,
+  "expect_fail_check": "data_flow_stated",
+  "sample": {
+    "used_tools": true,
+    "requires_disclosure": true,
+    "output_text": "You're chatting with an AI assistant, not a person — type 'agent' for a human. Your invoice rose because two seats were added on 3 July, prorated for the rest of the cycle.",
+    "aidr": {
+      "aidr_version": "0.2",
+      "id": "aidr-eval-good-1",
+      "timestamp": "2026-07-25T10:00:00Z",
+      "system": {
+        "name": "support-bot",
+        "provider": "Example LLM Inc",
+        "model": "stub-1"
+      },
+      "purpose": "Answer a customer's billing question in the support widget.",
+      "input_summary": "Customer asked why this month's invoice is higher.",
+      "output_summary": "Explained the increase came from two seats added mid-cycle, prorated.",
+      "data_recipients": [],
+      "reasoning_summary": "Matched the delta to two added seats and the proration for the remaining days.",
+      "trace": [
+        {
+          "step": 1,
+          "type": "task_received",
+          "provenance": "system_observed",
+          "summary": "Why is the invoice higher?"
+        },
+        {
+          "step": 2,
+          "type": "retrieval",
+          "provenance": "system_observed",
+          "summary": "Read last 3 invoices",
+          "refs": [
+            "3 rows"
+          ]
+        },
+        {
+          "step": 3,
+          "type": "decision",
+          "provenance": "self_reported",
+          "summary": "Answer factually, no escalation"
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Arithmetic over retrieved records."
+      },
+      "limitations": [
+        "Explains what was billed, not whether the seats should have been added."
+      ],
+      "human_review": {
+        "required": false,
+        "reason": "Informational answer, no financial effect."
+      },
+      "disclosure": {
+        "ai_interaction_disclosed": true,
+        "disclosure_text": "You're chatting with an AI assistant."
+      },
+      "attestation": {
+        "method": "model_self_report"
+      }
+    }
+  }
+}

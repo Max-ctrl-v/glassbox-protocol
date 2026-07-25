@@ -12,7 +12,7 @@
  * self-hosted chain "immutable" in an audit response.
  */
 
-import { createHash } from "node:crypto";
+import { createHash, sign, verify, generateKeyPairSync } from "node:crypto";
 import { appendFileSync, readFileSync, existsSync } from "node:fs";
 
 /**
@@ -51,6 +51,17 @@ export function readStore(storePath) {
     });
 }
 
+/** Chain a record to the tail of an existing store without writing it. */
+function chainTo(existing, record) {
+  const chained = { ...record };
+  if (existing.length > 0) {
+    chained.prev_record_hash = hashRecord(existing[existing.length - 1]);
+  } else {
+    delete chained.prev_record_hash; // the genesis record has nothing to chain to
+  }
+  return chained;
+}
+
 /**
  * Append one record, chaining it to the current tail.
  *
@@ -58,15 +69,22 @@ export function readStore(storePath) {
  * then appends. Returns the stored record including the hash link, so a caller can log or display it.
  */
 export function appendRecord(storePath, record) {
-  const existing = readStore(storePath);
-  const chained = { ...record };
-  if (existing.length > 0) {
-    chained.prev_record_hash = hashRecord(existing[existing.length - 1]);
-  } else {
-    delete chained.prev_record_hash; // the genesis record has nothing to chain to
-  }
+  const chained = chainTo(readStore(storePath), record);
   appendFileSync(storePath, JSON.stringify(chained) + "\n", "utf8");
   return chained;
+}
+
+/**
+ * Append one record, chaining then signing it before the write.
+ *
+ * Signing after chaining means the signature covers prev_record_hash, binding the record to its
+ * position. The store therefore never holds an unsigned copy of a record meant to be signed.
+ */
+export function appendSignedRecord(storePath, record, privateKeyPem, publicKeyId) {
+  const chained = chainTo(readStore(storePath), record);
+  const signed = signRecord(chained, privateKeyPem, publicKeyId);
+  appendFileSync(storePath, JSON.stringify(signed) + "\n", "utf8");
+  return signed;
 }
 
 /**
@@ -84,4 +102,51 @@ export function verifyChain(records) {
     }
   }
   return { ok: true };
+}
+
+// --- signatures ---------------------------------------------------------------------------------
+//
+// The hash chain makes an edit visible; it does not stop someone who can rewrite the whole file and
+// recompute every link. An Ed25519 signature raises that bar: to forge or alter a signed record an
+// attacker now needs the private key, not merely write access to the store. That is a real boundary
+// — key custody — not immutability. If the signing key is compromised, signatures prove nothing; for
+// a guarantee that survives that, anchor the chain head in an external timestamp or transparency log.
+
+/** Generate an Ed25519 keypair as PEM strings. The private key must never be committed. */
+export function generateKeypair() {
+  const { publicKey, privateKey } = generateKeyPairSync("ed25519");
+  return {
+    publicKey: publicKey.export({ type: "spki", format: "pem" }),
+    privateKey: privateKey.export({ type: "pkcs8", format: "pem" }),
+  };
+}
+
+/**
+ * Sign a record, returning it with a `signature` block.
+ *
+ * The signature covers the canonical record with the signature field itself removed, so it binds
+ * everything else — including prev_record_hash, which ties the signature to the record's position in
+ * the chain. Sign after chaining (appendRecord sets prev_record_hash first).
+ */
+export function signRecord(record, privateKeyPem, publicKeyId) {
+  const { signature, ...rest } = record; // never sign over an existing signature
+  const value = sign(null, Buffer.from(canonicalize(rest), "utf8"), privateKeyPem).toString("base64");
+  return { ...rest, signature: { algorithm: "ed25519", value, ...(publicKeyId ? { public_key_id: publicKeyId } : {}) } };
+}
+
+/**
+ * Verify a record's signature against a public key.
+ *
+ * Returns { ok: true } when it verifies, { ok: false, reason } when it does not — 'unsigned' if there
+ * is no signature at all, so a caller can tell a missing signature from a bad one.
+ */
+export function verifyRecordSignature(record, publicKeyPem) {
+  const { signature, ...rest } = record;
+  if (!signature) return { ok: false, reason: "unsigned" };
+  try {
+    const ok = verify(null, Buffer.from(canonicalize(rest), "utf8"), publicKeyPem, Buffer.from(signature.value, "base64"));
+    return ok ? { ok: true } : { ok: false, reason: "signature does not match" };
+  } catch (err) {
+    return { ok: false, reason: `signature check failed: ${err.message}` };
+  }
 }

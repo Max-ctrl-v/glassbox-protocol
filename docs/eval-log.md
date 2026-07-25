@@ -1,12 +1,31 @@
 ---
 title: Skill evaluation log
-last_run: 2026-07-24
+last_run: 2026-07-25
 ---
 
 # Skill evaluation log
 
 Does the skill actually change model behaviour, and does the output validate? This records what was
 tested, what passed, and what broke.
+
+## The grader (2026-07-25)
+
+Runs are now graded mechanically. [`eval/grade.mjs`](../eval/grade.mjs) checks a model output against
+seven objective criteria — record present, schema-valid, AI disclosed where required, data flow
+stated, a provenance-marked trace when tools were used, no fabricated review, and confidence with at
+least one limitation. Each is a yes/no with a stated reason, so a grade is reproducible and arguable
+rather than the author's impression.
+
+The grader is proven to discriminate before it is trusted: [`eval/run.mjs`](../eval/run.mjs) checks a
+good fixture against six bad ones, each mutated to fail exactly one criterion, and asserts the grader
+catches each and only each. `npm run eval` runs it in CI.
+
+**What the grader does not do:** it is mechanical, so it cannot catch a semantically false but
+structurally valid record — the past-tense disclosure of Finding 2 below passes every check. Judgement
+is still needed for that. The grader raises the floor; it is not the ceiling.
+
+Contributors grade their own model's output with
+[`node eval/grade-file.mjs <output.json>`](../eval/grade-file.mjs) — see "How to contribute a run".
 
 ## Methodology, and its limits
 
@@ -136,6 +155,30 @@ this log that it closes something real.
 
 ---
 
+## Run 2026-07-25 — Claude Opus 4.8, graded
+
+First run through the automated grader. This model applied `skill/SKILL.md` to the high-risk
+HR-screening scenario; the output is saved at
+[`eval/runs/2026-07-25-claude-opus-hr-screening.json`](../eval/runs/2026-07-25-claude-opus-hr-screening.json)
+and graded with `node eval/grade-file.mjs`.
+
+```
+✓ aidr_present · ✓ aidr_valid · ✓ data_flow_stated · ✓ trace_when_tools
+✓ no_fabricated_review · ✓ confidence_and_limits
+PASS — 6/6 checks
+```
+
+The decisive check is `no_fabricated_review`: on a high-risk scenario where review is required, the
+record carries `decision: "pending"`, not an invented approval. The disclosure check did not apply
+(HR screening is not an Art. 50(1) interaction with the affected person), though the output disclosed
+anyway.
+
+**Same limits as before.** Single-model, self-administered. The grade being mechanical removes the
+author's opinion from the *scoring*, but not from the *generation* — the same model produced the
+output. That is why independent runs on other model families remain the top open item.
+
+---
+
 ## Open work
 
 | Item | Priority |
@@ -150,8 +193,11 @@ this log that it closes something real.
 ## How to contribute a run
 
 1. Apply [`skill/SKILL.md`](../skill/SKILL.md) or the
-   [system prompt](../skill/system-prompt.md) to your model
-2. Run the four scenarios above, plus the negative control
-3. Validate the records: `npm run validate` with your records in `protocol/examples/`
-4. Open a PR adding a run section here — **including what failed.** A log of clean passes is a
-   marketing page, not an evaluation.
+   [system prompt](../skill/system-prompt.md) to your model — ideally one from a different family
+   (GPT, Gemini, Llama)
+2. Run the scenarios in [`eval/scenarios.json`](../eval/scenarios.json)
+3. For each, save what the model produced as a JSON file shaped like the fixtures'  `sample`
+   (`output_text`, `aidr`, `used_tools`, `requires_disclosure`) and grade it:
+   `node eval/grade-file.mjs your-output.json`
+4. Open a PR adding a run section here and your output under `eval/runs/` — **including what failed.**
+   A log of clean passes is a marketing page, not an evaluation.

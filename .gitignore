@@ -11,3 +11,6 @@ Thumbs.db
 
 # Captured decision-record stores hold prompt and tool text — personal data. Never commit them.
 .glassbox/
+# Signing keys. The private key must never be committed; anyone holding it can forge valid records.
+*.pem
+signing-key*

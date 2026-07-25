@@ -9,9 +9,10 @@
     "validate": "node scripts/validate.mjs",
     "test": "node scripts/test-validator.mjs",
     "test:capture": "node capture/test-capture.mjs",
+    "eval": "node eval/run.mjs",
     "verify:demo": "node capture/verify.mjs capture/examples/demo-store.jsonl",
     "check:links": "node scripts/check-links.mjs",
-    "check": "npm test && npm run test:capture && npm run validate && npm run verify:demo && npm run check:links"
+    "check": "npm test && npm run test:capture && npm run eval && npm run validate && npm run verify:demo && npm run check:links"
   },
   "devDependencies": {
     "ajv": "^8.17.1",

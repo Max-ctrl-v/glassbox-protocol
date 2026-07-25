@@ -82,6 +82,22 @@ casual editing, not against a determined administrator. If you need more, you ne
 storage with independent access control, or an external timestamp. Do not describe a self-hosted
 hash chain as immutable in an audit response; it is not.
 
+### Signing raises the bar
+
+The hash chain makes an edit *visible*; it does not stop someone who can rewrite the whole file and
+recompute every link. An Ed25519 signature on each record raises that bar: to forge or alter a signed
+record, an attacker now needs the private signing key, not merely write access to the store.
+
+The [capture layer](../capture/) ships this: `capture/keygen.mjs` generates a keypair,
+`appendSignedRecord` in [`chain.mjs`](../capture/lib/chain.mjs) signs each record after chaining (so
+the signature also binds its position), and `verify.mjs --public-key key.pem` checks every signature.
+Tests prove an edited or wrong-key record fails.
+
+**The honest limit moves, it does not disappear.** Signing shifts the trust boundary from "write
+access to the store" to "custody of the private key". If that key is compromised, signatures prove
+nothing. For a guarantee that survives key compromise, anchor the chain head in an external timestamp
+or transparency log. Do not call signed records immutable either.
+
 ## Access
 
 The record store contains decisions about people. Treat it accordingly.

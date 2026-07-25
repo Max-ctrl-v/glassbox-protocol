@@ -14,8 +14,9 @@
  * Usage:  node capture/verify.mjs <store.jsonl> [--pending-days N]
  */
 
+import { readFileSync } from "node:fs";
 import { validators } from "../scripts/lib/schemas.mjs";
-import { readStore, verifyChain } from "./lib/chain.mjs";
+import { readStore, verifyChain, verifyRecordSignature } from "./lib/chain.mjs";
 
 const MS_PER_DAY = 86_400_000;
 
@@ -24,8 +25,22 @@ const storePath = args.find((a) => !a.startsWith("--"));
 const pendingDaysArg = args.indexOf("--pending-days");
 const PENDING_DAYS = pendingDaysArg !== -1 ? Number(args[pendingDaysArg + 1]) : 30;
 
+// A public key (flag or env) turns on signature checking. Without one, signatures are reported as
+// present-but-unverified rather than silently ignored.
+const keyArg = args.indexOf("--public-key");
+const publicKeyPath = keyArg !== -1 ? args[keyArg + 1] : process.env.GLASSBOX_PUBKEY_FILE;
+let publicKey = null;
+if (publicKeyPath) {
+  try {
+    publicKey = readFileSync(publicKeyPath, "utf8");
+  } catch (err) {
+    console.error(`✗ Cannot read public key at ${publicKeyPath}: ${err.message}`);
+    process.exit(2);
+  }
+}
+
 if (!storePath) {
-  console.error("Usage: node capture/verify.mjs <store.jsonl> [--pending-days N]");
+  console.error("Usage: node capture/verify.mjs <store.jsonl> [--pending-days N] [--public-key key.pem]");
   process.exit(2);
 }
 
@@ -62,6 +77,26 @@ records.forEach((rec, i) => {
     problems.push(`Record ${i + 1} (${rec.id ?? "no id"}) fails schema: ${first.instancePath || "/"} ${first.message}`);
   }
 });
+
+// 2b. Signatures
+const signedCount = records.filter((r) => r.signature).length;
+if (publicKey) {
+  // Supplying a key asserts "this store should be signed", so an unsigned record is a failure, not a
+  // note — otherwise an attacker who can edit the store could strip signatures to downgrade it and
+  // still pass. Fail closed. If a store legitimately predates signing, verify it without the key.
+  records.forEach((rec, i) => {
+    const result = verifyRecordSignature(rec, publicKey);
+    if (!result.ok) {
+      if (result.reason === "unsigned") {
+        problems.push(`Record ${i + 1} (${rec.id}) is unsigned, but a public key was supplied — signatures are expected. It may have been stripped. (Verify without --public-key if the store predates signing.)`);
+      } else {
+        problems.push(`Record ${i + 1} (${rec.id}) signature is invalid: ${result.reason}. The record was altered after signing, or was signed by a different key.`);
+      }
+    }
+  });
+} else if (signedCount > 0) {
+  notes.push(`${signedCount} record(s) carry signatures but none were checked — pass --public-key <key.pem> or set GLASSBOX_PUBKEY_FILE to verify them.`);
+}
 
 // 3. Gaps
 records.forEach((rec, i) => {

@@ -254,6 +254,17 @@
       "type": "string",
       "pattern": "^[a-f0-9]{64}$"
     },
+    "signature": {
+      "description": "Optional Ed25519 signature over the canonical record with this field removed. Raises tamper-evidence from 'an edit is visible' to 'forgery needs the private key'. See capture/lib/chain.mjs and logging-guide.md. Not immutability — a compromised key defeats it.",
+      "type": "object",
+      "required": ["algorithm", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": { "type": "string", "const": "ed25519" },
+        "value": { "type": "string", "pattern": "^[A-Za-z0-9+/]+=*$", "description": "Base64-encoded signature." },
+        "public_key_id": { "type": "string", "description": "Identifier for the key that signed it, so a verifier knows which public key to use." }
+      }
+    },
     "tags": {
       "description": "Free-form labels for retrieval.",
       "type": "array",

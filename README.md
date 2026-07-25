@@ -105,17 +105,19 @@ own defects would be a poor advertisement for the idea.
 
 ## Status
 
-**v0.2** — usable, incomplete, and honest about which is which.
+**v0.3** — usable, incomplete, and honest about which is which.
 
 | Component | Status |
 |---|---|
 | Compliance mapping, post-Omnibus | ✅ Verified 2026-07-24 |
-| Protocol schemas + validation | ✅ 8 examples, 30 + 5 tests |
-| Activity trace + provenance (v0.2) | ✅ `system_observed` vs `self_reported` |
-| Capture layer (Claude Code hook) + verify tool | ✅ End-to-end, hash-chained |
+| Protocol schemas + validation | ✅ 8 examples, 30 + 14 tests |
+| Activity trace + provenance | ✅ `system_observed` vs `self_reported` |
+| Capture layer — Claude Code hook | ✅ End-to-end, hash-chained |
+| Capture layer — API wrapper (any provider) | ✅ `GlassboxRecorder` + runnable example |
+| Signed records (Ed25519) | ✅ Forgery needs the private key, not just write access |
+| Eval harness — objective grader | ✅ Discrimination proven; one graded model run |
 | Skill + 5 platform adapters | ✅ Evaluated single-model |
 | Templates (8) and audience guides (3) | ✅ |
-| Capture layer for non-Claude platforms | ⬜ API-wrapper pattern documented, not yet worked |
 | Cross-model evaluation | ⬜ [Top open item](docs/eval-log.md#open-work) |
 | German quickstart | ⬜ Next |
 | Provider depth to Annex IV standard | ⬜ Before December 2027 |
@@ -137,8 +139,11 @@ from practitioners — cite a source and we will take it seriously.
 git clone https://github.com/Max-ctrl-v/glassbox-protocol.git
 cd glassbox-protocol
 npm install
-npm run check     # tests, schema validation, link check
+npm run check     # schema tests, capture + signing tests, eval grader, validation, demo-store verify, links
 ```
+
+Grade your own model's output against the protocol: `node eval/grade-file.mjs your-output.json`
+(see [eval/](eval/)).
 
 ---
 

@@ -89,25 +89,63 @@ The trace holds prompt text and tool inputs. That is almost always personal data
 [logging guide](../protocol/logging-guide.md) sets out:
 
 - **Never commit it.** `.glassbox/` is git-ignored in this repo; keep it that way in yours.
+- **Escape it downstream.** Records hold verbatim prompt and tool text. Anything that later renders
+  the store in a web page must escape it — the trail is untrusted input to whatever displays it.
 - Restrict read access; log reads, not only writes.
 - Put it in your Article 30 record of processing, and in your retention and erasure procedures.
 - The hook truncates long strings, but it does not redact PII — it cannot reliably. If your prompts
   carry special-category data (GDPR Art. 9), redact upstream or capture at tier 2 where your code can.
 
-## Other platforms
+## Other platforms — the API wrapper
 
 The hook is Claude Code's shape of a general pattern: **whoever owns the agent loop owns the trail.**
+When you call a model through code, [`api/recorder.mjs`](api/recorder.mjs) gives you the same trail
+with no provider SDK imported — you tell it what happened at the three moments you already control:
 
-- **Direct API (any provider).** Your code already sees the prompt, each tool result, and the final
-  message. Emit a `system_observed` step at each, and `appendRecord` the assembled AIDR with
-  `attestation.method: application_captured` or `hybrid`. See
-  [`../skill/adapters/api.md`](../skill/adapters/api.md).
-- **OpenAI / Gemini / Copilot.** Where the platform exposes tool-call callbacks or a middleware hook,
-  wire the same three moments (prompt in, tool result, final output). Where it does not, you are on
-  tier 1 — the skill — until it does.
+```js
+import { GlassboxRecorder } from "./capture/api/recorder.mjs";
+
+const rec = new GlassboxRecorder({
+  store: ".glassbox/records.jsonl",
+  system: { name: "support-agent", provider: "Example LLM Inc", model: "gpt-x" },
+  region: "the EU",
+  // privateKey: fs.readFileSync(".glassbox/signing-key.pem"),  // optional: sign each record
+});
+
+rec.task(userPrompt);                                            // system_observed
+rec.observe({ type: "tool_call", summary: "search('refunds')", refs: ["12 hits"] });
+const record = rec.finish({ model: modelEmittedAidr });          // hybrid; omit model for capture-only
+```
+
+A runnable example with stubbed model and tools (no API key needed) is in
+[`api/example.mjs`](api/example.mjs): `node capture/api/example.mjs`.
+
+- **OpenAI / Gemini / Copilot.** Wire `task` / `observe` / `finish` into your tool-call callbacks.
+  Where a platform exposes no such hooks, you are on tier 1 — the skill — until it does.
 
 The [`lib/chain.mjs`](lib/chain.mjs) storage and [`verify.mjs`](verify.mjs) checker are
 platform-independent; only the event source changes.
+
+## Signing records (optional, stronger tamper-evidence)
+
+The hash chain makes an edit visible; a signature makes forgery need the private key. Generate a
+keypair, then point the hook or recorder at the private key:
+
+```bash
+node capture/keygen.mjs                      # writes .glassbox/signing-key.pem (git-ignored), prints the public key
+```
+
+The `GlassboxRecorder` takes `privateKey` (and optional `publicKeyId`) and signs every record. Verify
+a signed store with the public key:
+
+```bash
+node capture/verify.mjs .glassbox/records.jsonl --public-key .glassbox/public-key.pem
+```
+
+**Honest limit.** Signing moves the trust boundary from "write access to the store" to "custody of
+the private key" — a real improvement, not immutability. A compromised key defeats it; for more, use
+an external timestamp or transparency log. The private key must never be committed (`.gitignore`
+already excludes `*.pem` and `signing-key*`).
 
 ## Honest limit of the hash chain
 
