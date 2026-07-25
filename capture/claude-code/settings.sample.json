@@ -1,0 +1,27 @@
+{
+  "//": "Glassbox capture hook wiring for Claude Code. Merge the 'hooks' block into your own",
+  "//2": ".claude/settings.json (project) or ~/.claude/settings.json (user). Set the GLASSBOX_*",
+  "//3": "environment variables from your system card before use — do not hardcode them here, and",
+  "//4": "never commit a real .glassbox/ store: it contains prompt and tool text, which is personal data.",
+  "//5": "Adjust the node path if node is not on PATH for the hook process.",
+
+  "env": {
+    "GLASSBOX_DIR": ".glassbox",
+    "GLASSBOX_SYSTEM_NAME": "support-assistant",
+    "GLASSBOX_PROVIDER": "Anthropic PBC",
+    "GLASSBOX_MODEL": "claude-sonnet-5",
+    "GLASSBOX_REGION": "the United States (see system-card-anthropic-claude.yaml)"
+  },
+
+  "hooks": {
+    "UserPromptSubmit": [
+      { "hooks": [{ "type": "command", "command": "node capture/claude-code/glassbox-hook.mjs" }] }
+    ],
+    "PostToolUse": [
+      { "matcher": "*", "hooks": [{ "type": "command", "command": "node capture/claude-code/glassbox-hook.mjs" }] }
+    ],
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "node capture/claude-code/glassbox-hook.mjs" }] }
+    ]
+  }
+}

@@ -25,8 +25,17 @@ jobs:
       - name: Schemas reject bad artefacts
         run: npm test
 
+      - name: Capture chain and tamper detection
+        run: npm run test:capture
+
       - name: Examples validate
         run: npm run validate
+
+      - name: Demo store verifies (chain intact, records valid)
+        # GLASSBOX_NOW pins "now" so the pending-review ageing check is deterministic in CI.
+        run: npm run verify:demo
+        env:
+          GLASSBOX_NOW: "2026-07-25T12:00:00Z"
 
       - name: Relative links resolve
         run: npm run check:links

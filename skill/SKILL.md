@@ -64,6 +64,21 @@ computation. You do not have reliable access to that. Write the summary as a goo
 the reasoning that supports the answer — never imply it is a trace of what the model did
 internally.
 
+**When you used tools or retrieval, record the steps, not just the summary.** Emit a `trace`: the
+steps in order — what you were asked, what you retrieved, each tool you called and its result, the
+judgement calls, the decision. One line each. A paragraph hides the sequence; the trace shows it,
+which is what "show what it did" means to someone checking the work.
+
+Mark every step's `provenance`. From inside the skill you can only ever write `self_reported` — you
+are describing your own actions, not observing them from outside. That is honest and it is the point:
+a step marked `self_reported` tells the reader it rests on your account. Only a capture layer running
+in the runtime (see [`capture/`](../capture/)) writes `system_observed` steps, because only it sees
+the events independently of you. Never mark a step `system_observed` yourself — that would claim a
+grounding you do not have.
+
+A pure-text answer with no tools and no retrieval does not need a trace; the reasoning summary is
+enough. Do not manufacture a one-step trace to look thorough.
+
 ### 4. Name your limits and your confidence
 
 State confidence as high, medium, or low, and say what drives it.
@@ -103,7 +118,7 @@ through JSON, and the system storing the record should not have to parse prose.
 
 ```json
 {
-  "aidr_version": "0.1",
+  "aidr_version": "0.2",
   "id": "aidr-<date>-<short random>",
   "timestamp": "<ISO 8601 with timezone>",
   "system": { "name": "<deployment name>", "provider": "<provider>", "model": "<model>" },
@@ -114,15 +129,24 @@ through JSON, and the system storing the record should not have to parse prose.
     { "processor": "<who received it>", "server_region": "<where>", "data_categories": ["<what>"] }
   ],
   "reasoning_summary": "<how you got there>",
+  "trace": [
+    { "step": 1, "type": "task_received", "provenance": "self_reported", "summary": "<what you were asked>" },
+    { "step": 2, "type": "tool_call", "provenance": "self_reported", "summary": "<tool + what for>", "refs": ["<result ref>"] },
+    { "step": 3, "type": "decision", "provenance": "self_reported", "summary": "<what you decided and why>" }
+  ],
   "sources": [{ "type": "document|database|web|tool_output|user_provided|model_knowledge", "reference": "<id>" }],
   "confidence": { "level": "high|medium|low", "rationale": "<why>" },
   "limitations": ["<what this does not cover>"],
-  "human_review": { "required": true, "reason": "<why>", "decision": "pending" }
+  "human_review": { "required": true, "reason": "<why>", "decision": "pending" },
+  "attestation": { "method": "model_self_report" }
 }
 ```
 
-Add `affected_persons`, `disclosure`, and `risk_classification` when they apply. The full field list
-is in the schema.
+Include `trace` when you used tools or retrieval (see duty 3); omit it for a pure-text answer. Set
+`attestation.method` to `"model_self_report"` — you are the one writing this record. If a capture
+layer is running, it will overwrite the attestation and merge its `system_observed` steps; that is
+its job, not yours. Add `affected_persons`, `disclosure`, and `risk_classification` when they apply.
+The full field list is in the schema.
 
 ### Rules for the record
 
@@ -137,6 +161,9 @@ is in the schema.
   with their real decision, name, and time.
   Fabricating a review is the single worst failure available to you here: it manufactures false
   evidence of oversight, which is precisely what the record exists to prevent.
+- **Mark every trace step `self_reported`.** You describe your steps; you do not observe them from
+  outside. `system_observed` belongs only to a capture layer. Claiming it yourself fabricates a
+  grounding you do not have — the same class of failure as recording a review that did not happen.
 - **Never invent an `id` that looks like an existing one**, and never guess a `system.name` — if the
   deployment has not told you, leave it to be filled in rather than inventing plausible-looking
   values.
@@ -148,7 +175,8 @@ is in the schema.
 - Claim to be human, or dodge the question
 - Invent server regions, retention periods, subprocessors, or legal bases
 - Record a human review that did not happen
-- Present `reasoning_summary` as a faithful trace of internal computation
+- Present `reasoning_summary` or a `self_reported` trace as a faithful trace of internal computation
+- Mark a trace step `system_observed` — that provenance is the capture layer's alone
 - Inflate confidence, or write `"limitations": []` to look authoritative
 - Copy personal data into the record
 - Skip the record because the answer "seems fine" — that judgement is the reviewer's

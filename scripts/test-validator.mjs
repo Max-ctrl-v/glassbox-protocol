@@ -136,6 +136,61 @@ const cases = [
     doc: () => { const d = baseAidr(); d.prev_record_hash = "not-a-hash"; return d; },
   },
 
+  // --- Trace and attestation (v0.2) ---
+  {
+    name: "AIDR: trace step without provenance",
+    validate: validateAidr,
+    why: "A step that cannot say whether it was observed or self-reported defeats the trace",
+    doc: () => {
+      const d = baseAidr();
+      d.trace = [{ step: 1, type: "tool_call", summary: "called a tool" }];
+      return d;
+    },
+  },
+  {
+    name: "AIDR: trace step with unknown type",
+    validate: validateAidr,
+    why: "The step-type enum keeps traces comparable; a free-text type hides what happened",
+    doc: () => {
+      const d = baseAidr();
+      d.trace = [{ step: 1, type: "vibes", provenance: "self_reported", summary: "felt right" }];
+      return d;
+    },
+  },
+  {
+    name: "AIDR: trace step with invalid provenance",
+    validate: validateAidr,
+    why: "Provenance is exactly two values; anything else blurs observed and self-reported",
+    doc: () => {
+      const d = baseAidr();
+      d.trace = [{ step: 1, type: "decision", provenance: "probably_observed", summary: "decided" }];
+      return d;
+    },
+  },
+  {
+    name: "AIDR: attestation with unknown method",
+    validate: validateAidr,
+    why: "The method enum is what tells an inspector the record's trust tier",
+    doc: () => { const d = baseAidr(); d.attestation = { method: "trust_me" }; return d; },
+  },
+  {
+    name: "AIDR: attestation without method",
+    validate: validateAidr,
+    why: "An attestation block that does not state its method attests nothing",
+    doc: () => { const d = baseAidr(); d.attestation = { captured_by: "something" }; return d; },
+  },
+  {
+    name: "AIDR: self-report still requires confidence",
+    validate: validateAidr,
+    why: "The application_captured exemption must not leak to model or hybrid records",
+    doc: () => {
+      const d = baseAidr();
+      d.attestation = { method: "model_self_report" };
+      delete d.confidence;
+      return d;
+    },
+  },
+
   // --- System card ---
   {
     name: "card: no data flows",
@@ -219,6 +274,37 @@ const sanity = [
         decision: "modified",
         timestamp: "2026-07-24T13:00:00+02:00",
       };
+      return d;
+    })(),
+  },
+  {
+    name: "hybrid AIDR with a system_observed trace is valid",
+    validate: validateAidr,
+    doc: (() => {
+      const d = baseAidr();
+      d.aidr_version = "0.2";
+      d.trace = [
+        { step: 1, type: "task_received", provenance: "system_observed", summary: "the task" },
+        { step: 2, type: "model_reasoning", provenance: "self_reported", summary: "the reasoning" },
+      ];
+      d.attestation = { method: "hybrid", captured_by: "glassbox-hook@0.2 (test)" };
+      return d;
+    })(),
+  },
+  {
+    name: "application_captured AIDR may omit model-only judgement fields",
+    validate: validateAidr,
+    doc: (() => {
+      // A machine-captured record cannot assess reasoning, confidence, or limitations. The schema
+      // must accept its absence for this method — and only this method.
+      const d = baseAidr();
+      d.aidr_version = "0.2";
+      delete d.reasoning_summary;
+      delete d.confidence;
+      delete d.limitations;
+      d.trace = [{ step: 1, type: "task_received", provenance: "system_observed", summary: "the task" }];
+      d.human_review = { required: true, reason: "No model self-report to confirm scope.", decision: "pending" };
+      d.attestation = { method: "application_captured", captured_by: "glassbox-hook@0.2 (test)" };
       return d;
     })(),
   },

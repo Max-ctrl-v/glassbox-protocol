@@ -1,5 +1,5 @@
 {
-  "aidr_version": "0.1",
+  "aidr_version": "0.2",
   "id": "aidr-2026-07-24-1de9f307",
   "timestamp": "2026-07-24T16:05:12+02:00",
   "system": {
@@ -21,6 +21,13 @@
     }
   ],
   "reasoning_summary": "List prices were read from public pricing pages for three of five competitors. For the two that publish no pricing, the briefing says so rather than estimating. Patterns were derived by comparing per-seat prices at the same tier boundaries. The internal 2025 documents were used only to identify which competitors to compare, not as a price source, because they are eighteen months old.",
+  "trace": [
+    { "step": 1, "type": "task_received", "provenance": "self_reported", "summary": "Draft a competitor pricing briefing for the DACH mid-market segment" },
+    { "step": 2, "type": "retrieval", "provenance": "self_reported", "summary": "Read the 2025 internal pricing review to decide which competitors are in scope", "refs": ["SharePoint/Pricing/2025-competitive-review.docx"] },
+    { "step": 3, "type": "retrieval", "provenance": "self_reported", "summary": "Read the public pricing pages of three competitors; the other two publish none", "refs": ["competitor-a.example/pricing", "competitor-b.example/pricing", "competitor-c.example/preise"] },
+    { "step": 4, "type": "model_reasoning", "provenance": "self_reported", "summary": "Compared per-seat prices at matching tier boundaries; did not estimate the two that publish nothing" },
+    { "step": 5, "type": "decision", "provenance": "self_reported", "summary": "Deliver as a low-confidence starting point with the two gaps stated, not as an input to a pricing decision" }
+  ],
   "sources": [
     { "type": "web", "reference": "https://competitor-a.example/pricing", "relevance": "List pricing, retrieved 2026-07-24" },
     { "type": "web", "reference": "https://competitor-b.example/pricing", "relevance": "List pricing, retrieved 2026-07-24" },
@@ -55,5 +62,6 @@
   },
   "risk_classification": "minimal_risk",
   "retention_until": "2028-07-24",
+  "attestation": { "method": "model_self_report" },
   "tags": ["internal", "research", "low-confidence"]
 }

@@ -7,23 +7,39 @@
   "required": [
     "aidr_version",
     "id",
-    "timestamp",
     "system",
     "purpose",
     "input_summary",
     "output_summary",
     "data_recipients",
-    "reasoning_summary",
-    "confidence",
-    "limitations",
     "human_review"
   ],
   "additionalProperties": false,
+  "allOf": [
+    {
+      "description": "reasoning_summary, confidence and limitations are model judgements. Every record requires them EXCEPT one written purely by a capture layer (attestation.method = application_captured), which cannot assess them and must not invent them. Records with no attestation — including all v0.1 records — still require them.",
+      "if": {
+        "properties": { "attestation": { "type": "object", "properties": { "method": { "type": "string", "const": "application_captured" } }, "required": ["method"] } },
+        "required": ["attestation"]
+      },
+      "then": true,
+      "else": { "required": ["reasoning_summary", "confidence", "limitations"] }
+    },
+    {
+      "description": "timestamp is required unless a capture-only record genuinely had no runtime-supplied time to record. Any self-reported or hybrid record must carry one.",
+      "if": {
+        "properties": { "attestation": { "type": "object", "properties": { "method": { "type": "string", "const": "application_captured" } }, "required": ["method"] } },
+        "required": ["attestation"]
+      },
+      "then": true,
+      "else": { "required": ["timestamp"] }
+    }
+  ],
   "properties": {
     "aidr_version": {
-      "description": "Version of this schema the record conforms to.",
+      "description": "Version of this schema the record conforms to. 0.1 records stay valid; 0.2 adds the optional 'trace' and 'attestation' fields.",
       "type": "string",
-      "const": "0.1"
+      "enum": ["0.1", "0.2"]
     },
     "id": {
       "description": "Unique identifier for this record. UUID or any collision-free scheme.",
@@ -91,6 +107,50 @@
       "description": "How the output was reached, in terms a non-specialist can follow. This is a self-report, not a faithful account of the model's internal computation — see the honest-limits note in the README.",
       "type": "string",
       "minLength": 10
+    },
+    "trace": {
+      "description": "The steps taken to reach the output, in order. Each step is marked with its provenance: 'system_observed' means a capture layer logged the event as it happened; 'self_reported' means the model is describing it. A trace is required (by the skill, not the schema) whenever the output used tools or retrieval — where there are steps, they must be shown. See docs/design/2026-07-25-audit-trail-v0.2.md.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step", "type", "provenance", "summary"],
+        "additionalProperties": false,
+        "properties": {
+          "step": { "type": "integer", "minimum": 1, "description": "1-based position in the sequence." },
+          "at": { "type": "string", "format": "date-time", "description": "When this step happened, ISO 8601. Required in practice for system_observed steps; a self_reported step may not have a reliable time." },
+          "type": {
+            "type": "string",
+            "enum": ["task_received", "retrieval", "tool_call", "model_reasoning", "decision", "output", "disclosure", "handoff"],
+            "description": "What kind of step this was."
+          },
+          "provenance": {
+            "type": "string",
+            "enum": ["system_observed", "self_reported"],
+            "description": "'system_observed': a capture layer logged this actual event. 'self_reported': the model's own account, not independently grounded. A step that cannot state which it is defeats the purpose of the trace."
+          },
+          "summary": { "type": "string", "minLength": 1, "description": "What happened at this step, in plain language. Summarise; never copy personal data in." },
+          "refs": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Identifiers for what this step touched or produced — a query, a document id, a tool result reference. Not the data itself."
+          }
+        }
+      }
+    },
+    "attestation": {
+      "description": "How this record came to exist, so an inspector need not infer its trust tier. Answers the first audit question: did your system capture this, or did the model write it about itself?",
+      "type": "object",
+      "required": ["method"],
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["model_self_report", "application_captured", "hybrid"],
+          "description": "'model_self_report': the model emitted the whole record (tier 1). 'application_captured': a capture layer built it from observed events. 'hybrid': observed steps plus model-supplied reasoning/confidence/limitations."
+        },
+        "captured_by": { "type": "string", "description": "The capture layer that wrote it, e.g. 'glassbox-hook@0.2 (claude-code)'. Empty for a bare self-report — and that emptiness is itself informative." },
+        "created_at": { "type": "string", "format": "date-time", "description": "When the record was assembled, ISO 8601." }
+      }
     },
     "sources": {
       "description": "What the output actually relied on: documents, records, retrieved passages, tool results.",

@@ -1,5 +1,5 @@
 {
-  "aidr_version": "0.1",
+  "aidr_version": "0.2",
   "id": "aidr-2026-07-24-a4f19c22",
   "timestamp": "2026-07-24T09:14:03+02:00",
   "system": {
@@ -21,6 +21,13 @@
     }
   ],
   "reasoning_summary": "Each published requirement was checked against statements in the CV. Six of nine requirements are evidenced by named projects with dates. Three are not mentioned at all: Kubernetes operations, on-call experience, and formal mentoring. The recommendation to interview rests on the six evidenced requirements and on eight years of relevant backend experience; it does not rest on any assessment of the candidate as a person.",
+  "trace": [
+    { "step": 1, "at": "2026-07-24T09:14:00+02:00", "type": "task_received", "provenance": "system_observed", "summary": "Summarise application APP-2026-0412 against the Senior Backend Engineer requirements" },
+    { "step": 2, "at": "2026-07-24T09:14:01+02:00", "type": "retrieval", "provenance": "system_observed", "summary": "Loaded the candidate's CV and cover letter", "refs": ["APP-2026-0412 CV and cover letter"] },
+    { "step": 3, "at": "2026-07-24T09:14:01+02:00", "type": "retrieval", "provenance": "system_observed", "summary": "Loaded the published role requirements", "refs": ["job-requirements/senior-backend-engineer-v3.md"] },
+    { "step": 4, "at": "2026-07-24T09:14:02+02:00", "type": "model_reasoning", "provenance": "self_reported", "summary": "Checked each of nine requirements against the CV: six evidenced by dated projects, three not mentioned (Kubernetes ops, on-call, formal mentoring)" },
+    { "step": 5, "at": "2026-07-24T09:14:03+02:00", "type": "decision", "provenance": "self_reported", "summary": "Recommend proceeding to a first interview; flag the three gaps for the reviewer rather than treating them as disqualifying" }
+  ],
   "sources": [
     { "type": "user_provided", "reference": "APP-2026-0412 CV and cover letter", "relevance": "The only evidence about the candidate" },
     { "type": "document", "reference": "job-requirements/senior-backend-engineer-v3.md", "relevance": "The criteria applied" }
@@ -55,5 +62,10 @@
   },
   "risk_classification": "high_risk",
   "retention_until": "2029-07-24",
+  "attestation": {
+    "method": "hybrid",
+    "captured_by": "glassbox-hook@0.2 (application middleware)",
+    "created_at": "2026-07-24T09:14:03+02:00"
+  },
   "tags": ["recruitment", "annex-iii", "human-reviewed"]
 }

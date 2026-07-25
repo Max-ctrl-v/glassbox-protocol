@@ -1,5 +1,5 @@
 {
-  "aidr_version": "0.1",
+  "aidr_version": "0.2",
   "id": "aidr-2026-07-24-7b0e5518",
   "timestamp": "2026-07-24T14:22:51+02:00",
   "system": {
@@ -21,6 +21,13 @@
     }
   ],
   "reasoning_summary": "The invoice delta of €118.00 was matched against the line items. Two seats were added on 3 July at €59.00 each, prorated for the remaining 28 days of the cycle. The arithmetic reconciles to the cent, so no other cause needed to be considered. Escalation was not triggered because the question is factual, the answer is verifiable from the retrieved records, and no refund or credit was requested.",
+  "trace": [
+    { "step": 1, "at": "2026-07-24T14:22:47+02:00", "type": "task_received", "provenance": "system_observed", "summary": "Customer asked why this month's invoice is higher than last month's" },
+    { "step": 2, "at": "2026-07-24T14:22:48+02:00", "type": "retrieval", "provenance": "system_observed", "summary": "Read the last three invoices for the account", "refs": ["billing.invoices where account_ref=ACC-88213, last 3 periods", "3 rows returned"] },
+    { "step": 3, "at": "2026-07-24T14:22:49+02:00", "type": "retrieval", "provenance": "system_observed", "summary": "Read the proration policy", "refs": ["kb/proration-policy.md"] },
+    { "step": 4, "at": "2026-07-24T14:22:50+02:00", "type": "model_reasoning", "provenance": "self_reported", "summary": "Matched the €118.00 delta to two seats added 3 July at €59.00, prorated over 28 days; reconciles to the cent" },
+    { "step": 5, "at": "2026-07-24T14:22:51+02:00", "type": "decision", "provenance": "self_reported", "summary": "Answer factually and do not escalate; no refund or account change requested" }
+  ],
   "sources": [
     { "type": "database", "reference": "billing.invoices where account_ref = ACC-88213, last 3 periods", "relevance": "The invoice line items the explanation is built on" },
     { "type": "document", "reference": "kb/proration-policy.md", "relevance": "How mid-cycle seat additions are billed" }
@@ -50,5 +57,10 @@
   },
   "risk_classification": "limited_risk_transparency",
   "retention_until": "2027-01-24",
+  "attestation": {
+    "method": "hybrid",
+    "captured_by": "glassbox-hook@0.2 (application middleware)",
+    "created_at": "2026-07-24T14:22:51+02:00"
+  },
   "tags": ["support", "article-50", "no-escalation"]
 }

@@ -24,8 +24,9 @@ was not delayed by the Digital Omnibus — whatever the headlines said. Penaltie
 
 | | |
 |---|---|
-| **[The skill](skill/)** | One instruction layer that makes any model disclose it is AI, say where the data goes, show its route, name its limits, and flag when a human must decide |
-| **[AI Decision Records](protocol/decision-record.schema.json)** | A machine-readable trail per consequential output. Schema-validated, so a rubber-stamp cannot pass as a review |
+| **[The skill](skill/)** | One instruction layer that makes any model disclose it is AI, say where the data goes, show its route step by step, name its limits, and flag when a human must decide |
+| **[AI Decision Records](protocol/decision-record.schema.json)** | A machine-readable trail per consequential output, including an ordered trace of the steps taken. Schema-validated, so a rubber-stamp cannot pass as a review |
+| **[The capture layer](capture/)** | A runtime hook that logs the task, every tool call, and the result *automatically* — a `system_observed` trail that does not depend on the model's cooperation, hash-chained and verifiable |
 | **[System cards](protocol/examples/)** | What each system is, and exactly which data reaches which servers, where. Pre-filled for Anthropic, OpenAI, Google, Microsoft |
 | **[Compliance mapping](compliance/)** | Article by article, post-Omnibus: which artefact discharges which obligation, for which role, from when |
 | **[Templates](templates/)** | Register, disclosure wording, usage policy, oversight SOP, incident log, model card, FRIA, risk register |
@@ -84,8 +85,12 @@ interpretability.
 
 Four more honest limits:
 
-- **Self-reports are fallible.** A model can get its own decision record wrong. Hence schema
-  validation, human review gates, and system cards maintained by people.
+- **Self-reports are fallible.** A model can get its own decision record wrong — including claiming
+  it used a source it never touched. Hence schema validation, human review gates, system cards
+  maintained by people, and, where the stakes justify it, the [capture layer](capture/): a runtime
+  hook that logs what actually happened, marked `system_observed`, so the trail no longer rests on
+  the model's word. The skill's own trace is honestly marked `self_reported` until that layer is in
+  place.
 - **Data flow facts never come from the model.** They come from published provider documentation,
   with a source link and a verification date.
 - **Documentation cannot discharge everything.** Article 50(2) machine-readable marking and
@@ -100,14 +105,17 @@ own defects would be a poor advertisement for the idea.
 
 ## Status
 
-**v0.1** — usable, incomplete, and honest about which is which.
+**v0.2** — usable, incomplete, and honest about which is which.
 
 | Component | Status |
 |---|---|
 | Compliance mapping, post-Omnibus | ✅ Verified 2026-07-24 |
-| Protocol schemas + validation | ✅ 7 examples, 22 tests |
+| Protocol schemas + validation | ✅ 8 examples, 30 + 5 tests |
+| Activity trace + provenance (v0.2) | ✅ `system_observed` vs `self_reported` |
+| Capture layer (Claude Code hook) + verify tool | ✅ End-to-end, hash-chained |
 | Skill + 5 platform adapters | ✅ Evaluated single-model |
 | Templates (8) and audience guides (3) | ✅ |
+| Capture layer for non-Claude platforms | ⬜ API-wrapper pattern documented, not yet worked |
 | Cross-model evaluation | ⬜ [Top open item](docs/eval-log.md#open-work) |
 | German quickstart | ⬜ Next |
 | Provider depth to Annex IV standard | ⬜ Before December 2027 |

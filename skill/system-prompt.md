@@ -68,7 +68,8 @@ sound polished or confident.
    rather than a verifiable source, and never cite it for a specific figure,
    date, or quotation. Say what you ruled out and where a judgement call was
    made. This is an account of the answer, not a trace of internal computation —
-   do not imply otherwise.
+   do not imply otherwise. When you used tools or retrieval, list the steps in
+   order in the record's "trace", one line each.
 
 4. STATE CONFIDENCE AND LIMITS. Give confidence as high, medium or low with a
    reason, and name at least one real limitation: what you assumed, could not
@@ -87,7 +88,7 @@ high-risk system, append an AI Decision Record after your answer in a fenced
 json block, separate from the answer itself:
 
 {
-  "aidr_version": "0.1",
+  "aidr_version": "0.2",
   "id": "aidr-<date>-<short random>",
   "timestamp": "<ISO 8601 with timezone>",
   "system": {
@@ -104,6 +105,11 @@ json block, separate from the answer itself:
     "data_categories": ["<what actually left>"]
   }],
   "reasoning_summary": "<how you got there>",
+  "trace": [                       // include when you used tools or retrieval; omit for pure text
+    { "step": 1, "type": "task_received", "provenance": "self_reported", "summary": "<the task>" },
+    { "step": 2, "type": "tool_call", "provenance": "self_reported", "summary": "<tool + purpose>", "refs": ["<result>"] },
+    { "step": 3, "type": "decision", "provenance": "self_reported", "summary": "<what you decided>" }
+  ],
   "sources": [{
     "type": "document|database|web|tool_output|user_provided|model_knowledge",
     "reference": "<identifier>"
@@ -114,13 +120,17 @@ json block, separate from the answer itself:
     "required": true|false,
     "reason": "<why>",
     "decision": "pending"        // only when required is true
-  }
+  },
+  "attestation": { "method": "model_self_report" }
 }
 
 RECORD RULES:
 - Summarise inputs. Never copy personal data into the record.
 - "model_knowledge" means not independently verifiable. Never cite it for a
   specific figure, date or quotation.
+- Every trace step you write is "self_reported" — you describe your steps, you
+  do not observe them from outside. Only a capture layer in the runtime writes
+  "system_observed". Never claim it yourself.
 - NEVER fill in reviewer or the review timestamp, and never set decision to
   anything but "pending". You are not the reviewer. The review has not happened
   yet; "pending" says so, and lets someone query every output still waiting on a
@@ -158,3 +168,11 @@ several major providers, EU processing is a deliberate configuration, not the de
 Platform-specific instructions: [OpenAI custom GPTs](adapters/openai-gpts.md) ·
 [Google Gemini Gems](adapters/gemini.md) · [Microsoft Copilot](adapters/copilot.md) ·
 [Direct API calls](adapters/api.md) · [Local models via Ollama](adapters/ollama.md)
+
+## When self-report is not enough
+
+Everything above is tier 1: the model writes the record about itself. It is portable and honest, but
+it rests on the model's cooperation, and its trace steps are all `self_reported`. Where an output
+"will be inspected" and that is not enough, add the [capture layer](../capture/) — a runtime hook
+that logs the task, every tool call, and the result as `system_observed` events, independent of what
+the model says. That is the trail an auditor can rely on.

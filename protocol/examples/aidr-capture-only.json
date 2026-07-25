@@ -1,0 +1,38 @@
+{
+  "aidr_version": "0.2",
+  "id": "aidr-2026-07-25-capture-3f0a",
+  "timestamp": "2026-07-25T10:03:22+02:00",
+  "system": {
+    "name": "internal-agent",
+    "provider": "Anthropic PBC",
+    "model": "claude-sonnet-5",
+    "system_card": "../examples/system-card-anthropic-claude.yaml"
+  },
+  "purpose": "Automatically captured by the Glassbox hook; the model emitted no self-report to state the purpose in its own words.",
+  "input_summary": "Find the customers on the enterprise plan whose contract renews in the next 30 days and draft a renewal reminder.",
+  "output_summary": "Not captured at this layer — no model AI Decision Record was emitted to merge into this record.",
+  "data_recipients": [
+    {
+      "processor": "Anthropic PBC",
+      "server_region": "the United States (see system-card-anthropic-claude.yaml)",
+      "data_categories": ["prompt text", "tool inputs and outputs"]
+    }
+  ],
+  "trace": [
+    { "step": 1, "at": "2026-07-25T10:03:18+02:00", "type": "task_received", "provenance": "system_observed", "summary": "Find enterprise customers renewing in 30 days and draft a reminder" },
+    { "step": 2, "at": "2026-07-25T10:03:19+02:00", "type": "retrieval", "provenance": "system_observed", "summary": "Grep for contracts with renewal dates in range", "refs": ["Grep: renewal_date 2026-08", "14 matches"] },
+    { "step": 3, "at": "2026-07-25T10:03:20+02:00", "type": "tool_call", "provenance": "system_observed", "summary": "Read: crm/contracts/enterprise.csv", "refs": ["crm/contracts/enterprise.csv"] },
+    { "step": 4, "at": "2026-07-25T10:03:22+02:00", "type": "output", "provenance": "system_observed", "summary": "Produced a draft reminder for 14 accounts" }
+  ],
+  "human_review": {
+    "required": true,
+    "reason": "Machine-captured record with no model self-report; a human should confirm what this output was and whether it needed review before anything is sent.",
+    "decision": "pending"
+  },
+  "attestation": {
+    "method": "application_captured",
+    "captured_by": "glassbox-hook@0.2 (claude-code)",
+    "created_at": "2026-07-25T10:03:22+02:00"
+  },
+  "tags": ["capture-only", "no-model-report", "demonstration"]
+}
